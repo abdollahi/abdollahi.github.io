@@ -97,17 +97,16 @@
 				var audioLoader = new THREE.AudioLoader();
 
 				var mesh1 = new THREE.Mesh( sphere, material1 );
-				mesh1.position.set( -250, 30, 0 );
+				mesh1.position.set( -300, 30, 0 );
 				scene.add( mesh1 );
 
-				//var soundUrl = 'sounds/358232_j_s_song.ogg';
 				var soundUrl = 'sounds/raftam.m4a';
 
 				var sound1 = new THREE.PositionalAudio( listener );
+				sound1.setVolume(0.3);
 				audioLoader.load( soundUrl, function( buffer ) {
 					sound1.setBuffer( buffer );
-					sound1.setRefDistance( 20 );
-					sound1.setVolume(5);
+					sound1.setRefDistance(100);
 					sound1.setLoop(true);
 					sound1.play();
 				});
@@ -126,7 +125,7 @@
 					var animations = collada.animations;
 					var avatar = collada.scene;
 					avatar.scale.set(2,2,2);
-					avatar.position.set(-230, 0, 5);
+					avatar.position.set(-280, 0, 5);
 
 					mixer = new THREE.AnimationMixer( avatar );
 					var action = mixer.clipAction( animations[0] ).play();
@@ -145,17 +144,18 @@
 				mesh2.position.set( 250, 30, 0 );
 				scene.add( mesh2 );
 
-				//var sountUrl_2 = 'sounds/376737_Skullbeatz___Bad_Cat_Maste.ogg';
 				var soundUrl_2 = 'sounds/salsa.m4a';
 
 				var sound2 = new THREE.PositionalAudio( listener );
+				sound2.setVolume(0.5);
+				
 				audioLoader.load( soundUrl_2, function( buffer ) {
 					sound2.setBuffer( buffer );
 					sound2.setRefDistance( 20 );
-					sound2.setVolume(5);
 					sound2.setLoop(true);
 					sound2.play();
 				});
+				//sound2.setVolume(0);
 				mesh2.add( sound2 );
 
 
@@ -197,7 +197,7 @@
 				oscillator.start(0);
 				sound3.setNodeSource(oscillator);
 				sound3.setRefDistance( 20 );
-				sound3.setVolume(0.5);
+				sound3.setVolume(0);
 				mesh3.add(sound3);
 
 				// analysers
@@ -209,11 +209,11 @@
 				// global ambient audio
 
 				var sound4 = new THREE.Audio( listener );
-				audioLoader.load( 'sounds/Project_Utopia.ogg', function( buffer ) {
+				audioLoader.load( '../../sounds/Project_Utopia.ogg', function( buffer ) {
 					sound4.setBuffer( buffer );
 					sound4.setLoop(true);
 					sound4.setVolume(0.5);
-					//sound4.play();
+					sound4.play();
 				});
 
 				// ground
@@ -236,6 +236,9 @@
 				};
       			var gui = new dat.GUI();
 				var soundControls = new SoundControls();
+				
+				console.log(soundControls);
+				
 				var generatorControls = new GeneratorControls();
 				var volumeFolder = gui.addFolder('sound volume');
 				var generatorFolder = gui.addFolder('sound generator');
