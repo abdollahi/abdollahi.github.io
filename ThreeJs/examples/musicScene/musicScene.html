@@ -55,6 +55,8 @@
 			var container;
 			var camera, controls, scene, renderer;
 			var light, pointLight;
+			
+			var lookSpeedInitial = 0.009;
 
 			var material1, material2, material3;
 
@@ -67,6 +69,7 @@
 
 			init();
 			animate();
+			
 
 			function init() {
 
@@ -98,16 +101,16 @@
 				var audioLoader = new THREE.AudioLoader();
 
 				var mesh1 = new THREE.Mesh( sphere, material1 );
-				mesh1.position.set( -300, 30, 0 );
+				mesh1.position.set( -250, 30, 0 );
 				scene.add( mesh1 );
 
 				var soundUrl = 'sounds/raftam.m4a';
 
 				var sound1 = new THREE.PositionalAudio( listener );
-				sound1.setVolume(0.3);
+				sound1.setVolume(0.4);
 				audioLoader.load( soundUrl, function( buffer ) {
 					sound1.setBuffer( buffer );
-					sound1.setRefDistance(30);
+					sound1.setRefDistance(40);
 					sound1.setLoop(true);
 					sound1.play();
 				});
@@ -126,7 +129,7 @@
 					var animations = collada.animations;
 					var avatar = collada.scene;
 					avatar.scale.set(2,2,2);
-					avatar.position.set(-280, 0, 5);
+					avatar.position.set(-230, 0, 5);
 
 					mixer = new THREE.AnimationMixer( avatar );
 					var action = mixer.clipAction( animations[0] ).play();
@@ -233,7 +236,7 @@
 					   this.secondSphere =  sound2.getVolume();
 					   this.thirdSphere = sound3.getVolume();
 					   this.Ambient =  sound4.getVolume();
-					   this.lookSpeed = 0.01;
+					   this.lookSpeed = lookSpeedInitial;
 					   this.MUTE = true;
 				};
 				
@@ -289,7 +292,7 @@
 				controls = new THREE.FirstPersonControls( camera, renderer.domElement );
 
 				controls.movementSpeed = 70;
-				controls.lookSpeed = 0.05;
+				controls.lookSpeed = lookSpeedInitial;
 				controls.noFly = true;
 				controls.lookVertical = false;
 				//controls.activeLook = false;
