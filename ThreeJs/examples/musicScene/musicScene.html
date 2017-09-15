@@ -117,7 +117,9 @@
 				mesh1.add( sound1 );
 
 
-				var url = 'dae/august_94_14.dae';
+				//var url = 'dae/august_94_14.dae';
+				// raftam ke raftam
+				var url = 'dae/auguest_94_combined.dae';
 
 				// collada
 				var loader = new THREE.ColladaLoader();
@@ -129,7 +131,11 @@
 					var animations = collada.animations;
 					var avatar = collada.scene;
 					avatar.scale.set(2,2,2);
-					avatar.position.set(-230, 0, 5);
+					avatar.position.set(-210, 0, 5);
+					//avatar.rotation.z = Math.PI;
+					
+					//mesh.rotation.y = - 135 * Math.PI / 180;
+					
 
 					mixer = new THREE.AnimationMixer( avatar );
 					var action = mixer.clipAction( animations[0] ).play();
