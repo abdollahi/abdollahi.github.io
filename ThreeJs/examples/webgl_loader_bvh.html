@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+	  <title>three.js webgl - loaders - BVHLoader</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				color: #fff;
+				font-family:Monospace;
+				font-size:13px;
+				text-align:center;
+				font-weight: bold;
+
+				background-color: #000;
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			#info {
+				position: absolute;
+				padding: 10px;
+				width: 100%;
+				text-align: center;
+				color: #000000;
+			}
+		</style>
+
+	</head>
+	<body>
+		<div id="info">
+			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - BVH Loader -
+			animation from <a href="http://mocap.cs.cmu.edu/">http://mocap.cs.cmu.edu/</a>
+		</div>
+		<script src="../build/three.js"></script>
+		<script src="js/controls/OrbitControls.js"></script>
+		<script src="js/loaders/BVHLoader.js"></script>
+		<script src="js/vr/WebVR.js"></script>
+		<script src="js/vr/ViveController.js"></script>
+		<script src="js/loaders/OBJLoader.js"></script>
+
+		<script>
+
+			WEBVR.checkAvailability().catch( function( message ) {
+				//document.body.appendChild( WEBVR.getMessageContainer( message ) );
+			} );
+
+			var SCREEN_WIDTH = window.innerWidth;
+			var SCREEN_HEIGHT = window.innerHeight;
+
+			var clock = new THREE.Clock();
+
+			var camera, controls, scene, renderer;
+			var controller1, controller2;
+			//var mixer;
+			var mixers = [];
+
+
+			init();
+			animate();
+
+			var loader = new THREE.BVHLoader();
+
+
+			var chi, chj;
+			for ( var i = 1; i < 50; i ++ ) {
+				for ( var j = 1; j < 20; j ++ ) {
+					chi = i<10 ? "0" + i : i;
+					chj = j<10 ? "0" + j : j;
+					var url = "bvh/" + chi + "/" + chi + "_" + chj + ".bvh";
+					console.log(url);
+
+					loader.load(url, loadHandler);
+				}
+			}
+
+
+
+
+			function loadHandler( result ) {
+
+				console.log(result);
+
+				var skeletonHelper = new THREE.SkeletonHelper( result.skeleton.bones[ 0 ] );
+				skeletonHelper.skeleton = result.skeleton; // allow animation mixer to bind to SkeletonHelper directly
+
+				//console.log(skeletonHelper);
+
+				var boneContainer = new THREE.Group();
+				boneContainer.add( result.skeleton.bones[ 0 ] );
+
+				//skeletonHelper.scale.x = 3;
+				//skeletonHelper.scale.y = 3;
+				//skeletonHelper.scale.z = 3;
+
+				boneContainer.scale.x = 7;
+				boneContainer.scale.y = 7;
+				boneContainer.scale.z = 7;
+
+
+				//boneContainer.position.set(Math.random() * 1500 - 800, Math.random() * 1500 - 800, 0);
+
+				boneContainer.position.set(Math.random() * 10000 - 5000, Math.random() * 10000 - 5000, 0);
+
+
+				//console.log(boneContainer);
+
+				scene.add( skeletonHelper );
+				scene.add( boneContainer );
+
+				// play animation
+				var mixer = new THREE.AnimationMixer( skeletonHelper );
+				mixer.clipAction( result.clip ).setEffectiveWeight( 1.0 ).play();
+
+				mixers.push(mixer);
+
+			}
+
+
+
+
+			function init() {
+
+				//var cameraOrtho = new THREE.OrthographicCamera( SCREEN_WIDTH / - 2, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_HEIGHT / - 2, -11000, 11000 );
+				//var cameraOrtho = new THREE.OrthographicCamera( -SCREEN_WIDTH, SCREEN_WIDTH, SCREEN_HEIGHT, -SCREEN_HEIGHT, -20000, 20000 );
+				//camera = cameraOrtho;
+				//camera.position.set( 0, 100, 15000 );
+
+				//camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 10000 );
+				//camera.position.set( 0, 200, 2000 );
+				camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 20000 );
+				camera.position.set( 0, 100, 15000 );
+
+				controls = new THREE.OrbitControls( camera );
+				//controls.minDistance = 1000;
+				//controls.maxDistance = 2000;
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0xeeeeee );
+
+				//scene.add( new THREE.GridHelper( 400, 10 ) );
+
+
+				// renderer
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				document.body.appendChild( renderer.domElement );
+
+				renderer.vr.enabled = true;
+				renderer.vr.standing = true;
+				// controllers
+				controller1 = new THREE.ViveController( 0 );
+				controller1.standingMatrix = renderer.vr.getStandingMatrix();
+				scene.add( controller1 );
+				controller2 = new THREE.ViveController( 1 );
+				controller2.standingMatrix = renderer.vr.getStandingMatrix();
+				scene.add( controller2 );
+				var loader = new THREE.OBJLoader();
+				loader.setPath( 'models/obj/vive-controller/' );
+				loader.load( 'vr_controller_vive_1_5.obj', function ( object ) {
+					var loader = new THREE.TextureLoader();
+					loader.setPath( 'models/obj/vive-controller/' );
+					var controller = object.children[ 0 ];
+					controller.material.map = loader.load( 'onepointfive_texture.png' );
+					controller.material.specularMap = loader.load( 'onepointfive_spec.png' );
+					controller1.add( object.clone() );
+					controller2.add( object.clone() );
+				} );
+				WEBVR.getVRDisplay( function ( display ) {
+					renderer.vr.setDevice( display );
+					document.body.appendChild( WEBVR.getButton( display, renderer.domElement ) );
+				} );
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				var delta = clock.getDelta();
+
+				//if ( mixer ) mixer.update( delta );
+
+				for(var i=0; i<mixers.length; i++) {
+					mixers[i].update(delta)
+				}
+
+				controller1.update();
+				controller2.update();
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
+</html>
